@@ -1,0 +1,39 @@
+- hosts: linux
+  become: no
+  tasks:
+  - name: Print a list of the volumes and sizes.
+    shell: df -h
+    register: out
+  
+  - debug:
+        var: out.stdout_lines
+
+
+  - name: Print a list of the IP and interfaces
+    shell: ip address
+    register: out
+  - debug:
+        var: out.stdout_lines
+
+  - name: Print a list of os-release info
+    shell: 'cat /etc/os-release'
+    register: out
+  - debug:
+        var: out.stdout_lines
+
+
+- hosts: rhelbased
+  become: yes
+  tasks:
+  - name: Ensure Chrony installed
+    yum: name=chrony state=present
+  - name: Ensure Chrony running
+    service: name=chronyd state=started enabled=yes
+
+- hosts: debianbased
+  become: yes
+  tasks:
+  - name: Ensure Chrony installed
+    apt: name=chrony state=present
+  - name: Ensure Chrony running
+    service: name=chrony state=started enabled=yes
