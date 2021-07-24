@@ -13,3 +13,7 @@ centos-srvr.local.lan
 [debianbased]
 omv5.local.lan
 192.168.122.116
+
+[linuxcloud]
+192.168.122.25
+192.168.122.216

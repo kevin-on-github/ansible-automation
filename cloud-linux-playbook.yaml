@@ -1,0 +1,22 @@
+- hosts: linuxcloud
+  become: yes
+  tasks:
+    - name: Print a list of the volumes and sizes.
+      shell: df -h
+
+    - name: Install chrony
+      ansible.builtin.package:
+        name: chrony
+        state: present
+
+    - name: Service check for chrony
+      ansible.builtin.service:
+        name: chronyd
+        state: started
+
+    - name: Print a list of cmd output.
+      shell: df -h && ip address
+      register: out
+
+    - debug:
+        var: out.stdout_lines
