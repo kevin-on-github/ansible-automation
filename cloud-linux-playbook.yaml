@@ -1,22 +1,43 @@
+---
 - hosts: linuxcloud
   become: yes
   tasks:
-    - name: Print a list of the volumes and sizes.
-      shell: df -h
-
-    - name: Install chrony
+    - name: Install some packages
       ansible.builtin.package:
-        name: chrony
+        name:
+          - git
+          - chrony
+          - lighttpd
+          - nano
         state: present
 
     - name: Service check for chrony
       ansible.builtin.service:
-        name: chronyd
+        name: chrony
         state: started
+        enabled: true
+
+    - name: Service check for lighttpd
+      ansible.builtin.service:
+        name: lighttpd
+        state: started
+        enabled: true
+
+    - name: Purge the web location
+      file:
+        path: "/var/www/html/"
+        state: absent
+
+    - name: Git checkout the website.
+      ansible.builtin.git:
+        repo: "https://github.com/kevin-on-github/kevin-on-github.github.io.git"
+        dest: /var/www/html/
 
     - name: Print a list of cmd output.
-      shell: df -h && ip address
+      shell: |
+        df -h 
+        ip address show up
       register: out
-
-    - debug:
+    - name: Register with debug
+      debug:
         var: out.stdout_lines
