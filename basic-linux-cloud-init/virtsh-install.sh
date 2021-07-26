@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Cloud-linux images are available for each distro used in the script. Names are important.
 
 # AlmaLinux8 -
@@ -23,42 +22,52 @@ cloud-localds -v --network-config=network_config_static.cfg test1-seed.img cloud
 echo 'Hello, lets setup your VM. Enter exact info, no error checking.'
 
 echo 'What OS (almalinux8, centos-stream8, debiantesting)?'
-read vmos
+select vmos in almalinux8 centos-stream8 debiantesting; do
+	echo $vmos selected.
 
-echo 'How many vcpus (ex 1, 4)?'
-read vmcpu
+	echo 'How many vcpus (ex 1, 4)?'
+	read vmcpu
 
-echo 'How much RAM (ex 1024, 2048, etc)?'
-read vmmem
+	echo 'How much RAM (ex 1024, 2048, etc)?'
+	read vmmem
 
-echo 'How many VMs do you want (ex 1, 6, etc)?'
-read vmcount
+	echo 'How many VMs do you want (ex 1, 6, etc)?'
+	read vmcount
 
-for I in $( seq 1 $vmcount )
-do
+	for i in $(seq 1 $vmcount); do
 
-# Assign a random name to the VM.
-    NAME=$vmos-cloud$I-$RANDOM
+		# Assign a random name to the VM.
+		name=$vmos-cloud$i-$RANDOM
+		array+=($name)
 
+		# Create a snapshot of the base image so each VM gets a clean start.
+		qemu-img create -b $vmos-base.qcow2 -f qcow2 -F qcow2 $name.qcow2
 
-# Create a snapshot of the base image so each VM gets a clean start.
-    qemu-img create -b $vmos-base.qcow2 -f qcow2 -F qcow2 $NAME.qcow2
+		# Variables are set, install the VMs.
+		virt-install --name $name \
+			--virt-type kvm --memory $vmmem --vcpus $vmcpu \
+			--boot hd,menu=on \
+			--disk path=test1-seed.img,device=cdrom \
+			--disk path=$name.qcow2,device=disk \
+			--graphics vnc \
+			--os-type Linux --os-variant $vmos \
+			--network network:default \
+			--noautoconsole
 
-# Variables are set, install the VMs.
-    virt-install --name $NAME \
-      --virt-type kvm --memory $vmmem --vcpus $vmcpu \
-      --boot hd,menu=on \
-      --disk path=test1-seed.img,device=cdrom \
-      --disk path=$NAME.qcow2,device=disk \
-      --graphics vnc \
-      --os-type Linux --os-variant $vmos \
-      --network network:default \
-      --noautoconsole
+	done
 
+	echo You created $vmcount VMs of type $vmos, here are their names.
+	echo -e ${array[*]}
+
+	# Specify a wait time for the VM to boot and grab an IP from dhcp. Their IP address wil display in terminal.
+
+	while true; do
+		for i in $(seq 0 $((vmcount - 1))); do
+			getipdata=$(virsh domifaddr ${array[$i]} | grep ipv4)
+			printf "${array[$i]} leased $getipdata \n"
+		done
+		sleep 5
+
+	done
+	break
 done
-
-# Specify a wait time for the VM to boot and grab an IP from dhcp. Their IP address wil display in terminal.
-echo 'Do you want to wait for network info from dnsmasq (ex 0, 30, 90)? Enter# seconds.'
-    read waittime
-    sleep $waittime
-     sudo virsh list --name | while read n ; do    [[ ! -z $n ]] && sudo virsh domifaddr $n; done
