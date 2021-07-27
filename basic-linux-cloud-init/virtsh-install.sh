@@ -1,28 +1,54 @@
 #!/bin/bash
 
 # Cloud-linux images are available for each distro used in the script. Names are important.
+# Uncomment curl line to download. Centos Stream is the only distro that does noat have a
+# "latest" download option.
 
-# AlmaLinux8 -
-# curl -s https://repo.almalinux.org/almalinux/8/cloud/x86_64/images/AlmaLinux-8-GenericCloud-latest.x86_64.qcow2 \
-#       -o almalinux8-base.qcow2
-#
-# CentOSStream8 - Verify the latest version as there is no 'latest/daily'
-# curl - https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2 \
-#       -o centos-stream8-base.qcow2
-#
-# Debian11 -
-# curl -s https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-generic-amd64-daily.qcow2 \
-#       -o debiantesting-base.qcow2
-#
+# AlmaLinux8
+file=almalinux8-base.qcow2
+if test -f "$file"; then
+    echo "$file exists."
+else 
+    echo "$file does not exist."
+    curl https://repo.almalinux.org/almalinux/8/cloud/x86_64/images/AlmaLinux-8-GenericCloud-latest.x86_64.qcow2 -o almalinux8-base.qcow2
+fi
+
+# CentosStream8
+file=centos-stream8-base.qcow2
+if test -f "$file"; then
+    echo "$file exists."
+else 
+    echo "$file does not exist."
+    curl https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2 -o centos-stream8-base.qcow2
+fi
+
+# Debian11
+file=debiantesting-base.qcow2
+if test -f "$file"; then
+    echo "$file exists."
+else 
+    echo "$file does not exist."
+    curl https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-generic-amd64-daily.qcow2 -o debiantesting-base.qcow2
+fi
+
+# Ubuntu20.04-LTS
+file=ubuntu20.04-base.qcow2
+if test -f "$file"; then
+    echo "$file exists."
+else 
+    echo "$file does not exist."
+    curl https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img -o ubuntu20.04-base.qcow2
+fi
 
 # This creates a seed img from the two cfg files that hold the cloud-init data.
 # Script assumes all files reside in the current working dir.
-cloud-localds -v --network-config=network_config_static.cfg test1-seed.img cloud_init.cfg
+#cloud-localds -v --network-config=network_config_static.cfg test1-seed.img cloud_init.cfg
+cloud-localds -v test1-seed.img cloud_init.cfg
 
 echo 'Hello, lets setup your VM. Enter exact info, no error checking.'
 
 echo 'What OS (almalinux8, centos-stream8, debiantesting)?'
-select vmos in almalinux8 centos-stream8 debiantesting; do
+select vmos in almalinux8 centos-stream8 debiantesting ubuntu20.04; do
 	echo $vmos selected.
 
 	echo 'How many vcpus (ex 1, 4)?'
