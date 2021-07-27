@@ -1,5 +1,5 @@
 # Cloud-linux
-- Various images are available for each distro used in the script. Comment out the curl lines to skip downloading the images.
+- Various images are available for each distro used in the [virt-install.sh](https://raw.githubusercontent.com/kevin-on-github/ansible-automation/main/basic-linux-cloud-init/virtsh-install.sh) script. Comment out the curl lines to skip downloading the images.
 
 ```
 # AlmaLinux8
@@ -49,7 +49,7 @@ else
 fi
 ```
 
-### This creates a seed img from the cloud-init cfg files.
+### This creates a seed img from the [cloud-init.cfg](https://raw.githubusercontent.com/kevin-on-github/ansible-automation/main/basic-linux-cloud-init/cloud_init.cfg) files.
 
 ```
 cloud-localds -v test1-seed.img cloud_init.cfg
