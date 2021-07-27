@@ -9,8 +9,8 @@ file=almalinux8-base.qcow2
 if test -f "$file"; then
     echo "$file exists."
 else 
-    echo "$file does not exist."
-    curl https://repo.almalinux.org/almalinux/8/cloud/x86_64/images/AlmaLinux-8-GenericCloud-latest.x86_64.qcow2 -o almalinux8-base.qcow2
+    echo "$file does not exist. Downloading..."
+    curl -sSL -o almalinux8-base.qcow2 https://repo.almalinux.org/almalinux/8/cloud/x86_64/images/AlmaLinux-8-GenericCloud-latest.x86_64.qcow2
 fi
 
 # CentosStream8
@@ -18,8 +18,8 @@ file=centos-stream8-base.qcow2
 if test -f "$file"; then
     echo "$file exists."
 else 
-    echo "$file does not exist."
-    curl https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2 -o centos-stream8-base.qcow2
+    echo "$file does not exist. Downloading..."
+    curl -sSL -o centos-stream8-base.qcow2 https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20210603.0.x86_64.qcow2
 fi
 
 # Debian11
@@ -27,17 +27,27 @@ file=debiantesting-base.qcow2
 if test -f "$file"; then
     echo "$file exists."
 else 
-    echo "$file does not exist."
-    curl https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-generic-amd64-daily.qcow2 -o debiantesting-base.qcow2
+    echo "$file does not exist. Downloading..."
+    curl -sSL -o debiantesting-base.qcow2 https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-generic-amd64-daily.qcow2
 fi
+
+# Opensuse15.3
+file=opensuse15.3-base.qcow2
+if test -f "$file"; then
+    echo "$file exists."
+else 
+    echo "$file does not exist. Downloading..."
+    curl -sSL -o opensuse15.3-base.qcow2 https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.3/images/openSUSE-Leap-15.3.x86_64-1.0.0-NoCloud-Build7.45.qcow2
+fi
+
 
 # Ubuntu20.04-LTS
 file=ubuntu20.04-base.qcow2
 if test -f "$file"; then
     echo "$file exists."
 else 
-    echo "$file does not exist."
-    curl https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img -o ubuntu20.04-base.qcow2
+    echo "$file does not exist. Downloading..."
+    curl -sSL -o ubuntu20.04-base.qcow2 https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
 fi
 
 # This creates a seed img from the two cfg files that hold the cloud-init data.
@@ -48,7 +58,7 @@ cloud-localds -v test1-seed.img cloud_init.cfg
 echo 'Hello, lets setup your VM. Enter exact info, no error checking.'
 
 echo 'What OS (almalinux8, centos-stream8, debiantesting)?'
-select vmos in almalinux8 centos-stream8 debiantesting ubuntu20.04; do
+select vmos in almalinux8 centos-stream8 debiantesting opensuse15.3 ubuntu20.04; do
 	echo $vmos selected.
 
 	echo 'How many vcpus (ex 1, 4)?'
