@@ -53,6 +53,38 @@ fi
 
 ```
 cloud-localds -v test1-seed.img cloud_init.cfg
+
+# content of cloud-init.cfg. Make sure to edit the file for your specific deployment needs.
+
+#cloud-config
+hostname: linux-cloud
+fqdn: linux-cloud.localdomain
+manage_etc_hosts: true
+users:
+  - name: <your username>
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    home: /home/<your username>
+    shell: /bin/bash
+    lock_passwd: false
+    ssh-authorized-keys:
+      - <your public ssh key>
+# only cert auth via ssh (console access can still login)
+ssh_pwauth: false
+disable_root: false
+chpasswd:
+  list: |
+     <yourusername>:<your password>
+  expire: False
+
+package_update: true
+packages:
+  - qemu-guest-agent
+  - nano
+  - (insert all the package names here)
+# written to /var/log/cloud-init-output.log
+final_message: "The system is finally up, after $UPTIME seconds"
+
 ```
 
 ### With files in the right location, this user input will build the VMs.
