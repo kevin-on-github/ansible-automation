@@ -1,0 +1,34 @@
+---
+- hosts: ciscoios
+  gather_facts: false
+  connection: network_cli
+  tasks:
+     #- name: Gather all legacy facts
+      # cisco.ios.ios_facts:
+        # gather_subset: min
+        # gather_network_resources:
+        # - interfaces
+
+     - name: sho stuff
+       ios_command:
+         commands: 
+           - show version | include Version
+           - show ip interface brief | exclude unassigned
+           - show access-list
+       register: result
+
+     #- name: show ip interface 
+     #  raw: show ip interface brief
+     #  register: ip_result
+
+     - name: debug register
+       debug: var=result
+
+
+     - name: acl stuff
+       ios_config:
+         lines:
+           - access-list 100 permit tcp 192.168.1.0 0.0.0.255 any established
+           - access-list 100 permit udp 192.168.1.0 0.0.0.255 host 9.9.9.9 eq domain
+           - access-list 100 permit udp 192.168.1.0 0.0.0.255 host 10.10.10.10 eq isakmp 
+           - access-list 100 permit esp any any
