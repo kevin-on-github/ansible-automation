@@ -50,10 +50,11 @@ else
     curl -sSL -o ubuntu20.04-base.qcow2 https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
 fi
 
-# This creates a seed img from the two cfg files that hold the cloud-init data.
+# This creates a seeded iso from the cfg files that hold the cloud-init data.
 # Script assumes all files reside in the current working dir.
-#cloud-localds -v --network-config=network_config_static.cfg test1-seed.img cloud_init.cfg
-cloud-localds -v test1-seed.img cloud_init.cfg
+# One has a network config that is not necessary, but can do some nic configs.
+#cloud-localds -v --network-config=network_config_static.cfg cloud-init.iso cloud_init.cfg
+cloud-localds -v cloud-init.iso cloud_init.cfg
 
 echo 'Hello, lets setup your VM. Enter exact info, no error checking.'
 
@@ -83,7 +84,7 @@ select vmos in almalinux8 centos-stream8 debiantesting opensuse15.3 ubuntu20.04;
 		virt-install --name $name \
 			--virt-type kvm --memory $vmmem --vcpus $vmcpu \
 			--boot hd,menu=on \
-			--disk path=test1-seed.img,device=cdrom \
+			--disk path=cloud-init.iso,device=cdrom \
 			--disk path=$name.qcow2,device=disk \
 			--graphics vnc \
 			--os-type Linux --os-variant $vmos \
