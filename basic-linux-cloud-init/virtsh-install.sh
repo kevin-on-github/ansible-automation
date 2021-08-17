@@ -4,7 +4,6 @@
 # Uncomment curl line to download. Centos Stream is the only distro that does noat have a
 # "latest" download option.
 
-# Edit this path if your VM's are located in a specific folder.
 path=/var/lib/libvirt/images
 
 # AlmaLinux8
@@ -43,6 +42,7 @@ else
     curl -SL -o $path/opensuse15.3-base.qcow2 https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.3/images/openSUSE-Leap-15.3.x86_64-1.0.0-NoCloud-Build7.45.qcow2
 fi
 
+
 # Ubuntu20.04-LTS
 file=ubuntu20.04-base.qcow2
 if test -f "$path/$file"; then
@@ -53,15 +53,22 @@ else
 fi
 
 # This creates a seeded iso from the cfg files that hold the cloud-init data.
-# Script assumes all files reside in the current working dir.
+# Script assumes all files reside in the $path working dir.
 # One has a network config that is not necessary, but can do some nic configs.
 #cloud-localds -v --network-config=network_config_static.cfg cloud-init.iso cloud_init.cfg
 cloud-localds -v $path/cloud-init.iso $path/cloud_init.cfg
 
 echo 'Hello, lets setup your VM. Enter exact info, no error checking.'
 
-echo 'What OS (almalinux8, centos-stream8, debiantesting)?'
-select vmos in almalinux8 centos-stream8 debiantesting opensuse15.3 ubuntu20.04; do
+echo 'What OS for the VMs?'
+select vmos in almalinux8 centos-stream8 debiantesting opensuse15.3 ubuntu20.04 quit; do
+
+	case $vmos in
+	    'quit')
+		    echo 'Bye'
+			break;;
+	esac
+
 	echo $vmos selected.
 
 	echo 'How many vcpus (ex 1, 4)?'
@@ -98,15 +105,20 @@ select vmos in almalinux8 centos-stream8 debiantesting opensuse15.3 ubuntu20.04;
 	echo You created $vmcount VMs of type $vmos, here are their names.
 	echo -e ${array[*]}
 
-	# Specify a wait time for the VM to boot and grab an IP from dhcp. Their IP address wil display in terminal.
+	select oper in ip_output quit; do
+    echo Display IP (1) or quit(2).
+		case $oper in
+	    	ip_output)
+		    	echo 'Disply ip of new VMs in array.'
+		        	for i in $(seq 0 $((vmcount - 1))); do
+                      getipdata=$(virsh domifaddr ${array[$i]} | grep ipv4)
+                      printf "${array[$i]} leased $getipdata \n"
+	        		done;;
 
-	while true; do
-		for i in $(seq 0 $((vmcount - 1))); do
-			getipdata=$(virsh domifaddr ${array[$i]} | grep ipv4)
-			printf "${array[$i]} leased $getipdata \n"
-		done
-		sleep 5
-
+	    	quit)
+				echo 'Bye'
+				break
+		esac
 	done
-	break
+break
 done
