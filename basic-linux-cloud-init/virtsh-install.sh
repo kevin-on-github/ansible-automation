@@ -106,7 +106,7 @@ select vmos in almalinux8 centos-stream8 debiantesting opensuse15.3 ubuntu20.04 
 	echo -e ${array[*]}
 
 	select oper in ip_output quit; do
-    echo Display IP (1) or quit(2).
+    	echo Display IP (1) or quit(2).
 		case $oper in
 	    	ip_output)
 		    	echo 'Disply ip of new VMs in array.'
