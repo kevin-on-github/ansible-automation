@@ -1,0 +1,27 @@
+#cloud-config
+hostname: linux-cloud
+fqdn: linux-cloud.localdomain
+manage_etc_hosts: true
+users:
+  - name: kevin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    home: /home/kevin
+    shell: /bin/bash
+    lock_passwd: false
+    ssh-authorized-keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDb5s6qKCiDnQSYl82TcwMjjnMDiC5/kPgePgk2WoKNxN3vuNxnqbnyb1BnkFyvw3TRTf5kyYZya6tBcE7QKiN7cJBTYIecfFYws1qj3wf8KdSh3kz9vxRB2YMMzU6q7Pd4nV96ma3r2B8Vujk8jh0DzL+8BxsHeqL4W4Nn1VsDUpjU0fiTqdNMxucpqeNAugBG0b3q1B8uYgb0Nrr0aL1UCto5Ub8inDwfKQRmF+OxDG3AGpQE0gSY2qCHbTVsYDKYrpnMwZ8kkFdG3NZUJ2+pcSWCZqkXOZnF+r4LuKyAsf/shftca9jXBIjSWAp4O/tR+7z8DKWRm8TtntllQG22BhVelXyVwOgPuyqoK6ZqB8t67xtbHOd8/u1DnqyR0deiUm76PGLiFCqMTS4A9Ho3v5vY8Sy5t1TexR2svNMiZEMoN1XHb+nv08Rc77BViONNKVL06e9K4vsNg79VlMqU5BVLwGGix8kEUJoK82bGnCFTdcPjIoUrzbBYWtnByo8= kevin@asus-fedora.local.lan
+# only cert auth via ssh (console access can still login)
+ssh_pwauth: false
+disable_root: false
+chpasswd:
+  list: |
+     kevin:letmein
+  expire: False
+
+package_update: true
+packages:
+  - qemu-guest-agent
+  - nano
+# written to /var/log/cloud-init-output.log
+final_message: "The system is finally up, after $UPTIME seconds"

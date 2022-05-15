@@ -56,7 +56,13 @@ fi
 # Script assumes all files reside in the current working dir.
 # One has a network config that is not necessary, but can do some nic configs.
 #cloud-localds -v --network-config=network_config_static.cfg cloud-init.iso cloud_init.cfg
-cloud-localds -v cloud-init.iso cloud_init.cfg
+#cloud-localds -v cloud-init.iso cloud_init.cfg
+
+
+# This appears to be the new hottness for seed creation
+# Lets give this a shot.
+
+genisoimage -output seed.iso -volid cidata -joliet -rock user-data meta-data
 
 echo 'Hello, lets setup your VM. Enter exact info, no error checking.'
 
@@ -80,16 +86,17 @@ select vmos in almalinux8 centos-stream8 debian11 opensuse15.3 ubuntu20.04; do
 		array+=($name)
 
 		# Create a snapshot of the base image so each VM gets a clean start.
-		qemu-img create -b $vmos-base.qcow2 -f qcow2 -F qcow2 $name.qcow2 8GB
+		qemu-img create -b $vmos-base.qcow2 -f qcow2 -F qcow2 $name.qcow2 12G
 
 		# Variables are set, install the VMs.
 		virt-install --name $name \
 			--virt-type kvm --memory $vmmem --vcpus $vmcpu \
 			--boot hd,menu=on \
-			--disk path=cloud-init.iso,device=cdrom \
+			--import \
+			--cdrom seed.iso \
 			--disk path=$name.qcow2,device=disk \
 			--graphics vnc \
-			--os-type Linux --os-variant $vmos \
+			--os-variant $vmos \
 			--network network:default \
 			--noautoconsole
 
