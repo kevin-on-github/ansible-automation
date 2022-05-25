@@ -1,25 +1,32 @@
 [linux]
+#All linux machines within the environment
 localhost
-centos-srvr.local.lan
-omv5.local.lan
-192.168.122.25
-192.168.122.216
+omv6.local.lan
+hpfedora.local.lan
+debian-srvr.local.lan
 
 [rhelbased]
+# Redhat fedora etc
 localhost
-centos-srvr.local.lan
+hpfedora.local.lan
 
 
 [debianbased]
-omv5.local.lan
+# Debian ubuntu
+omv6.local.lan
+debian-srvr.local.lan
 
 [linuxcloud]
+# Not used in this lab
 192.168.122.25
 192.168.122.216
 
 [ciscoios]
-10.0.1.2
-10.0.1.3
+# Cisco ios devices
+192.168.1.250
 
 [ciscoios:vars]
-ansible_network_os = ios
+    ansible_network_os=ios
+    ansible_user=admin
+    #ansible_password=super secret password otherwise use -k
+    ansible_connection=network_cli

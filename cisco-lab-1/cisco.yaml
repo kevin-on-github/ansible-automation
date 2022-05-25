@@ -9,6 +9,15 @@
         # gather_network_resources:
         # - interfaces
 
+     - name: Configure the login banner
+       cisco.ios.ios_banner:
+         banner: login
+         text: |
+            this is my login banner
+            that contains a multiline
+            string
+         state: present
+
      - name: sho stuff
        ios_command:
          commands: 
@@ -17,9 +26,6 @@
            - show access-list
        register: result
 
-     #- name: show ip interface 
-     #  raw: show ip interface brief
-     #  register: ip_result
 
      - name: debug register
        debug: var=result
@@ -32,3 +38,10 @@
            - access-list 100 permit udp 192.168.1.0 0.0.0.255 host 9.9.9.9 eq domain
            - access-list 100 permit udp 192.168.1.0 0.0.0.255 host 10.10.10.10 eq isakmp 
            - access-list 100 permit esp any any
+
+     - name: save running to startup when modified
+       ios_config:
+         save_when: modified
+
+
+

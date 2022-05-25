@@ -5,7 +5,7 @@
     - name: Print a list of cmd output.
       shell: |
         df -h 
-        ip address
+        ip address show
       register: out
     - name: Register with debug  
       debug:
