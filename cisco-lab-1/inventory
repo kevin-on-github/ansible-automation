@@ -27,6 +27,7 @@ debian-srvr.local.lan
 
 [ciscoios:vars]
     ansible_network_os=ios
+    ansible_ssh_args=-oKexAlgorithms=diffie-hellman-group-exchange-sha1 -c aes128-cbc
     ansible_user=admin
     #ansible_password=super secret password otherwise use -k
     ansible_connection=network_cli
