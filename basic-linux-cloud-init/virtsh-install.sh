@@ -15,6 +15,15 @@ else
     curl -SL https://repo.almalinux.org/almalinux/8/cloud/x86_64/images/AlmaLinux-8-GenericCloud-latest.x86_64.qcow2 -o $path'almalinux8-base.qcow2'
 fi
 
+# AlmaLinux9
+file=almalinux9-base.qcow2
+if test -f "$path$file"; then
+    echo "$file exists."
+else 
+    echo "$file does not exist. Downloading..."
+    curl -SL https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2 -o $path'almalinux9-base.qcow2'
+fi
+
 # CentosStream8
 file=centos-stream8-base.qcow2
 if test -f "$path$file"; then
@@ -23,6 +32,16 @@ else
     echo "$file does not exist. Downloading..."
     curl -SL https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2 -o $path'centos-stream8-base.qcow2'
 fi
+
+# CentosStream9
+file=centos-stream9-base.qcow2
+if test -f "$path$file"; then
+    echo "$file exists."
+else 
+    echo "$file does not exist. Downloading..."
+    curl -SL https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-20220627.1.x86_64.qcow2 -o $path'centos-stream9-base.qcow2'
+fi
+
 
 # Debian11
 file=debian11-base.qcow2
@@ -33,13 +52,13 @@ else
     curl -SL https://cloud.debian.org/images/cloud/bullseye/daily/latest/debian-11-generic-amd64-daily.qcow2 -o $path'debian11-base.qcow2'
 fi
 
-# Opensuse15.3
+# Opensuse15.4
 file=opensuse15.3-base.qcow2
 if test -f "$path$file"; then
     echo "$file exists."
 else 
     echo "$file does not exist. Downloading..."
-    curl -SL https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.3/images/openSUSE-Leap-15.3.x86_64-1.0.1-NoCloud-Build2.146.qcow2 -o $path'opensuse15.3-base.qcow2'
+    curl -SL https://download.opensuse.org/distribution/openSUSE-stable/appliances/openSUSE-Leap-15.4-JeOS.x86_64-15.4-OpenStack-Cloud-Current.qcow2 -o $path'opensuse15.3-base.qcow2'
 fi
 
 
@@ -66,8 +85,8 @@ genisoimage -output seed.iso -volid cidata -joliet -rock user-data meta-data
 
 echo 'Hello, lets setup your VM. Enter exact info, no error checking.'
 
-echo 'What OS (almalinux8, centos-stream8, debian11)?'
-select vmos in almalinux8 centos-stream8 debian11 opensuse15.3 ubuntu20.04; do
+echo 'What OS (almalinux8-9, centos-stream8-9, debian11, opensuse15.4, ubuntu20.04)?'
+select vmos in almalinux8 almalinux9 centos-stream8 centos-stream9 debian11 opensuse15.3 ubuntu20.04; do
 	echo $vmos selected.
 
 	echo 'How many vcpus (ex 1, 4)?'
@@ -86,7 +105,7 @@ select vmos in almalinux8 centos-stream8 debian11 opensuse15.3 ubuntu20.04; do
 		array+=($name)
 
 		# Create a snapshot of the base image so each VM gets a clean start.
-		qemu-img create -b $vmos-base.qcow2 -f qcow2 -F qcow2 $name.qcow2 12G
+		qemu-img create -b $vmos-base.qcow2 -f qcow2 -F qcow2 $name.qcow2 32G
 
 		# Variables are set, install the VMs.
 		virt-install --name $name \
@@ -96,7 +115,7 @@ select vmos in almalinux8 centos-stream8 debian11 opensuse15.3 ubuntu20.04; do
 			--cdrom seed.iso \
 			--disk path=$name.qcow2,device=disk \
 			--graphics vnc \
-			--os-variant $vmos \
+			--os-variant linux2020 \
 			--network network:default \
 			--noautoconsole
 
